@@ -107,7 +107,7 @@ CREATE INDEX "classes_subject_id_idx" ON "classes" USING btree ("subject_id");--
 CREATE INDEX "classes_teacher_id_idx" ON "classes" USING btree ("teacher_id");--> statement-breakpoint
 CREATE INDEX "enrollments_student_id_idx" ON "enrollments" USING btree ("student_id");--> statement-breakpoint
 CREATE INDEX "enrollments_class_id_idx" ON "enrollments" USING btree ("class_id");--> statement-breakpoint
-CREATE INDEX "enrollments_student_class_unique" ON "enrollments" USING btree ("student_id","class_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "enrollments_student_class_unique" ON "enrollments" USING btree ("student_id","class_id");--> statement-breakpoint
 CREATE INDEX "account_userId_idx" ON "account" USING btree ("userId");--> statement-breakpoint
 CREATE INDEX "session_userId_idx" ON "session" USING btree ("userId");--> statement-breakpoint
 CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("identifier");
