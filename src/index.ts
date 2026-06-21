@@ -17,6 +17,12 @@ app.set('trust proxy', 1);
 
 if(!process.env.FRONTEND_URL) throw new Error('FRONTEND_URL is not set in .env file')
 
+// Health check — declared BEFORE auth/Arcjet so the platform probe is never
+// rate-limited or flagged as a bot. Railway healthcheckPath points here.
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
+
 app.use(cors({
     origin:process.env.FRONTEND_URL,
     methods: ['GET','POST','PUT','DELETE'],
