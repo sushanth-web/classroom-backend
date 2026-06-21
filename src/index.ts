@@ -11,6 +11,10 @@ import {auth} from "./lib/auth.js";
 const app = express();
 const port = process.env.PORT || 8000;
 
+// Behind a reverse proxy / load balancer (Docker, nginx, cloud host) so that
+// req.ip and Arcjet read the real client IP from the X-Forwarded-For header.
+app.set('trust proxy', 1);
+
 if(!process.env.FRONTEND_URL) throw new Error('FRONTEND_URL is not set in .env file')
 
 app.use(cors({
