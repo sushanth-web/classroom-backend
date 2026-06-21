@@ -11,7 +11,6 @@ import {auth} from "./lib/auth.js";
 import classesRouter from "./routes/classes.js"
 
 const app = express();
-const port = process.env.PORT || 8000;
 
 // Behind a reverse proxy / load balancer (Docker, nginx, cloud host) so that
 // req.ip and Arcjet read the real client IP from the X-Forwarded-For header.
@@ -47,6 +46,8 @@ app.get('/', (req,res) => {
     res.send('Hello, Welcome to the Classroom API!');
 });
 
-app.listen(port, () => {
+const port = Number(process.env.PORT) || 8080;
+
+app.listen(port, "0.0.0.0", () => {
     console.log(`Server started on port ${port}`);
-})
+});
