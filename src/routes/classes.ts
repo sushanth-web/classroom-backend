@@ -90,6 +90,7 @@ router.post("/", async (req, res) => {
             status,
             bannerUrl,
             bannerCldPubId,
+            schedules,
         } = req.body;
 
         const [createdClass] = await db
@@ -103,7 +104,7 @@ router.post("/", async (req, res) => {
                 bannerUrl,
                 capacity,
                 description,
-                schedules: [],
+                schedules: Array.isArray(schedules) ? schedules : [],
                 status,
             })
             .returning({ id: classes.id });
@@ -149,10 +150,97 @@ router.get("/:id", async (req, res) => {
             return res.status(404).json({ error: "Class not found" });
         }
 
-        res.status(200).json({ data: classDetails });
+        const [{ count: enrolledCount } = { count: 0 }] = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(enrollments)
+            .where(eq(enrollments.classId, classId));
+
+        res.status(200).json({
+            data: {
+                ...classDetails,
+                enrolledCount: Number(enrolledCount),
+                availableSpots: Math.max(
+                    0,
+                    classDetails.capacity - Number(enrolledCount)
+                ),
+            },
+        });
     } catch (error) {
         console.error("GET /classes/:id error:", error);
         res.status(500).json({ error: "Failed to fetch class details" });
+    }
+});
+
+// Update a class
+router.put("/:id", async (req, res) => {
+    try {
+        const classId = Number(req.params.id);
+
+        if (!Number.isFinite(classId)) {
+            return res.status(400).json({ error: "Invalid class id" });
+        }
+
+        const {
+            name,
+            teacherId,
+            subjectId,
+            capacity,
+            description,
+            status,
+            bannerUrl,
+            bannerCldPubId,
+            schedules,
+        } = req.body;
+
+        const [updated] = await db
+            .update(classes)
+            .set({
+                ...(name !== undefined ? { name } : {}),
+                ...(teacherId !== undefined ? { teacherId } : {}),
+                ...(subjectId !== undefined ? { subjectId } : {}),
+                ...(capacity !== undefined ? { capacity } : {}),
+                ...(description !== undefined ? { description } : {}),
+                ...(status !== undefined ? { status } : {}),
+                ...(bannerUrl !== undefined ? { bannerUrl } : {}),
+                ...(bannerCldPubId !== undefined ? { bannerCldPubId } : {}),
+                ...(Array.isArray(schedules) ? { schedules } : {}),
+            })
+            .where(eq(classes.id, classId))
+            .returning({ id: classes.id });
+
+        if (!updated) {
+            return res.status(404).json({ error: "Class not found" });
+        }
+
+        res.status(200).json({ data: updated });
+    } catch (error) {
+        console.error("PUT /classes/:id error:", error);
+        res.status(500).json({ error: "Failed to update class" });
+    }
+});
+
+// Delete a class (enrollments cascade per schema)
+router.delete("/:id", async (req, res) => {
+    try {
+        const classId = Number(req.params.id);
+
+        if (!Number.isFinite(classId)) {
+            return res.status(400).json({ error: "Invalid class id" });
+        }
+
+        const [deleted] = await db
+            .delete(classes)
+            .where(eq(classes.id, classId))
+            .returning({ id: classes.id });
+
+        if (!deleted) {
+            return res.status(404).json({ error: "Class not found" });
+        }
+
+        res.status(200).json({ data: deleted });
+    } catch (error) {
+        console.error("DELETE /classes/:id error:", error);
+        res.status(500).json({ error: "Failed to delete class" });
     }
 });
 

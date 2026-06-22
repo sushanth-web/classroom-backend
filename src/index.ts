@@ -9,6 +9,9 @@ import securityMiddleware from "./middleware/security.js";
 import {toNodeHandler} from "better-auth/node";
 import {auth} from "./lib/auth.js";
 import classesRouter from "./routes/classes.js"
+import departmentsRouter from "./routes/departments.js"
+import enrollmentsRouter from "./routes/enrollments.js"
+import statsRouter from "./routes/stats.js"
 
 const app = express();
 
@@ -41,6 +44,12 @@ app.use('/api/subjects', subjectsRouter);
 app.use('/api/users', usersRouter);
 
 app.use('/api/classes',classesRouter)
+
+app.use('/api/departments', departmentsRouter);
+
+app.use('/api/enrollments', enrollmentsRouter);
+
+app.use('/api/stats', statsRouter);
 
 app.get('/', (req,res) => {
     res.send('Hello, Welcome to the Classroom API!');
