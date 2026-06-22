@@ -23,11 +23,13 @@ const aj = arcjet({
                 "CATEGORY:PREVIEW"
             ],
         }),
-        // Create a token bucket rate limit. Other algorithms are supported.
+        // Burst limit. The dashboard fans out ~7 concurrent requests on load
+        // (users/subjects/departments/classes + 3 stats calls), so a max of 5
+        // would 429 a fresh page load. 30/2s still blocks flood traffic.
         slidingWindow({
             mode:"LIVE",
             interval:'2s',
-            max:5,
+            max:30,
         })
     ],
 });
