@@ -81,7 +81,7 @@ async function seed() {
                 code: s.code,
                 name: s.name,
                 description: `${s.name} — core ${s.dept} subject.`,
-                departmentId: deptByCode[s.dept],
+                departmentId: deptByCode[s.dept]!,
             }))
         )
         .onConflictDoNothing({ target: subjects.code });
@@ -150,8 +150,8 @@ async function seed() {
                 return {
                     inviteCode: c.invite,
                     name: c.name,
-                    subjectId: subjectByCode[c.subj],
-                    teacherId: teachers[i % teachers.length].id,
+                    subjectId: subjectByCode[c.subj]!,
+                    teacherId: teachers[i % teachers.length]!.id,
                     capacity: c.cap,
                     description: `${c.name}. Auto-seeded class for demo purposes.`,
                     status: c.status,
@@ -185,7 +185,7 @@ async function seed() {
         );
         // rotate the student window so different classes get different students
         for (let k = 0; k < target; k++) {
-            const student = students[(idx * 7 + k) % students.length];
+            const student = students[(idx * 7 + k) % students.length]!;
             enrollmentValues.push({
                 studentId: student.id,
                 classId: cls.id,

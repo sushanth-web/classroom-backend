@@ -1,6 +1,14 @@
 import AgentAPI from "apminsight";
 AgentAPI.config()
 
+// Node < 20 doesn't expose the Web Crypto API as a global, which Better Auth's
+// generateId() requires (throws "crypto is not defined"). Polyfill it from the
+// built-in module so the app runs even if the host defaults to an older Node.
+import { webcrypto } from "node:crypto";
+if (!globalThis.crypto) {
+    globalThis.crypto = webcrypto as Crypto;
+}
+
 import express from 'express';
 import subjectsRouter from "./routes/subjects.js"
 import usersRouter from "./routes/users.js"
